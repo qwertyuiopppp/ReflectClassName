@@ -8,18 +8,12 @@ namespace ReflectClassName
 	{
 		static void Main(string[] args)
 		{
-			//Reflect
-			var a1 = AppDomain.CurrentDomain.GetAssemblies();
-			var a = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault();
-			string b = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
-			string c = b.Replace("\\","/");
-			string d = c.Split("/").LastOrDefault();
-			string path = c.Replace(d, "ClassLibrary1.dll");
-			Assembly ass1 = Assembly.LoadFrom(@path);
-			var type = ass1.GetType("ClassLibrary1.Class1");
+			string dllName = "ClassLibrary1.dll";
+			string fullName = "ClassLibrary1.Class1";
+			var type = GetCurrentMainType(dllName, fullName);
 			var obj = CreateInstance(type);
-			var ic= obj as IClassLibrary1.IClass1;
-			if (ic==null)
+			var ic = obj as IClassLibrary1.IClass1;
+			if (ic == null)
 			{
 				Console.WriteLine("失败");
 			}
@@ -27,6 +21,15 @@ namespace ReflectClassName
 			{
 				ic.Print();
 			}
+		}
+
+		public static Type GetCurrentMainType(string dllName, string fullName)
+		{
+			string mainPath = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+			string mainPath1 = mainPath.Replace("\\", "/");
+			string resultPath = mainPath1.Replace(mainPath1.Split("/").LastOrDefault(), dllName);
+			Assembly ass1 = Assembly.LoadFrom(resultPath);
+			return ass1.GetType(fullName);
 		}
 
 		//public void GetTypeClassPropertiesAndFunc(string className)
@@ -92,11 +95,11 @@ namespace ReflectClassName
 		//	} 
 		//}
 
-			/// <summary>反射创建指定类型的实例</summary>
-			/// <param name="type">类型</param>
-			/// <param name="parameters">参数数组</param>
-			/// <returns></returns>
-			public static Object CreateInstance(Type type, params Object[] parameters)
+		/// <summary>反射创建指定类型的实例</summary>
+		/// <param name="type">类型</param>
+		/// <param name="parameters">参数数组</param>
+		/// <returns></returns>
+		public static Object CreateInstance(Type type, params Object[] parameters)
 		{
 			try
 			{
